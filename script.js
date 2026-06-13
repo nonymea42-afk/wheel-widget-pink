@@ -4,9 +4,6 @@ const svg =
 const spinBtn =
     document.getElementById("spinBtn");
 
-const result =
-    document.getElementById("result");
-
 const COUNT = 8;
 
 let rotation = 0;
