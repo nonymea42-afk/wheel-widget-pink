@@ -311,8 +311,6 @@ function spin(){
 
     spinning = true;
 
-    result.textContent = "";
-
     const step =
         360 / COUNT;
 
@@ -347,9 +345,6 @@ function spin(){
         `rotate(${rotation}deg)`;
 
     setTimeout(() => {
-
-        result.textContent =
-            labels[winner];
 
         spinning = false;
 
