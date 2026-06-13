@@ -140,21 +140,3 @@ body{
 
     user-select:none;
 }
-
-#result{
-
-    margin-top:1rem;
-
-    color:var(--text);
-
-    font-size:
-        clamp(
-            18px,
-            2vw,
-            30px
-        );
-
-    font-weight:700;
-
-    min-height:2rem;
-}
