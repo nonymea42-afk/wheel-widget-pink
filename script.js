@@ -4,6 +4,18 @@ const svg =
 const spinBtn =
     document.getElementById("spinBtn");
 
+const toggleEditor =
+    document.getElementById("toggleEditor");
+
+const editor =
+    document.getElementById("editor");
+
+const inputsContainer =
+    document.getElementById("inputs");
+
+const saveBtn =
+    document.getElementById("saveLabels");
+
 const COUNT = 8;
 
 let rotation = 0;
@@ -114,27 +126,6 @@ function createDefs(){
     }
 
     svg.appendChild(defs);
-}
-
-function editLabel(i){
-
-    const value =
-        prompt(
-            "Label:",
-            labels[i]
-        );
-
-    if(
-        value !== null &&
-        value.trim()
-    ){
-        labels[i] =
-            value.trim();
-
-        saveLabels();
-
-        render();
-    }
 }
 
 function render(){
@@ -256,18 +247,8 @@ function render(){
         );
 
         text.setAttribute(
-            "class",
-            "slice-label"
-        );
-
-        text.setAttribute(
             "transform",
             `rotate(${angle} ${pos.x} ${pos.y})`
-        );
-
-        text.addEventListener(
-            "click",
-            () => editLabel(i)
         );
 
         svg.appendChild(text);
@@ -302,6 +283,68 @@ function render(){
     svg.appendChild(center);
 }
 
+function renderInputs(){
+
+    inputsContainer.innerHTML = "";
+
+    labels.forEach(
+        (label,index) => {
+
+            const input =
+                document.createElement(
+                    "input"
+                );
+
+            input.className =
+                "label-input";
+
+            input.value =
+                label;
+
+            input.dataset.index =
+                index;
+
+            inputsContainer.appendChild(
+                input
+            );
+        }
+    );
+}
+
+toggleEditor.addEventListener(
+    "click",
+    () => {
+
+        editor.classList.toggle(
+            "hidden"
+        );
+
+        renderInputs();
+    }
+);
+
+saveBtn.addEventListener(
+    "click",
+    () => {
+
+        const inputs =
+            document.querySelectorAll(
+                ".label-input"
+            );
+
+        labels =
+            [...inputs].map(
+                input =>
+                    input.value.trim()
+                    || "Label"
+            );
+
+        saveLabels();
+
+        render();
+    }
+);
+
 function spin(){
 
     if(spinning) return;
@@ -316,7 +359,6 @@ function spin(){
             Math.random() * COUNT
         );
 
-    // Prevent stopping near slice dividers
     const safetyMargin = 10;
 
     const stopAngle =
