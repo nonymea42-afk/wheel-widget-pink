@@ -288,6 +288,7 @@ function render(){
             `rotate(${angle} ${pos.x} ${pos.y})`
         );
 
+
         if(editMode){
 
             text.style.cursor =
@@ -298,7 +299,15 @@ function render(){
 
             text.addEventListener(
                 "click",
-                () => editLabelInline(i)
+                () => {
+
+                    console.log(
+                        "clicked",
+                        labels[i]
+                    );
+
+                    editLabelInline(i);
+                }
             );
         }
 
