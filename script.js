@@ -20,6 +20,7 @@ const COUNT = 8;
 
 let rotation = 0;
 let spinning = false;
+let editMode = false;
 
 const defaults = [
     "Label 1",
@@ -128,6 +129,28 @@ function createDefs(){
     svg.appendChild(defs);
 }
 
+function editLabelInline(i){
+
+    const newLabel =
+        window.prompt(
+            "Rename label:",
+            labels[i]
+        );
+
+    if(
+        newLabel !== null &&
+        newLabel.trim()
+    ){
+
+        labels[i] =
+            newLabel.trim();
+
+        saveLabels();
+
+        render();
+    }
+}
+
 function render(){
 
     svg.innerHTML = "";
@@ -147,6 +170,20 @@ function render(){
     outer.setAttribute("cy","0");
     outer.setAttribute("r",radius);
     outer.setAttribute("fill","#fdf5f5");
+
+    if(editMode){
+
+    text.style.cursor =
+        "pointer";
+
+    text.style.opacity =
+        "0.8";
+
+    text.addEventListener(
+        "click",
+        () => editLabelInline(i)
+    );
+}
 
     svg.appendChild(outer);
 
@@ -315,11 +352,14 @@ toggleEditor.addEventListener(
     "click",
     () => {
 
-        editor.classList.toggle(
-            "hidden"
-        );
+        editMode = !editMode;
 
-        renderInputs();
+        toggleEditor.textContent =
+            editMode
+                ? "✓ Done"
+                : "⚙ Edit Labels";
+
+        render();
     }
 );
 
