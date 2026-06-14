@@ -214,3 +214,9 @@ body{
 
     cursor:pointer;
 }
+
+.slice-label{
+
+    transition:
+        opacity .2s ease;
+}
