@@ -1,413 +1,196 @@
-const svg =
-    document.getElementById("wheel");
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
 
-const spinBtn =
-    document.getElementById("spinBtn");
+const spinBtn = document.getElementById("spinBtn");
+const editBtn = document.getElementById("editBtn");
 
-const toggleEditor =
-    document.getElementById("toggleEditor");
+const SIZE = canvas.width;
+const CENTER = SIZE / 2;
+const RADIUS = 440;
 
-const labelEditor =
-    document.getElementById("labelEditor");
-
-const COUNT = 8;
-
-let rotation = 0;
 let spinning = false;
 let editMode = false;
-let selectedSlice = null;
+let currentRotation = 0;
 
-const defaults = [
+let labels = [
     "Label 1",
     "Label 2",
     "Label 3",
     "Label 4",
     "Label 5",
-    "Label 6",
-    "Label 7",
-    "Label 8"
+    "Label 6"
 ];
 
-let labels =
-    JSON.parse(
-        localStorage.getItem(
-            "pinkWheelLabels"
-        )
-    ) || defaults;
+const colors = [
+    "#F8DADB",
+    "#F4C6CB",
+    "#F8DADB",
+    "#F1B6BD",
+    "#F8DADB",
+    "#EDA5AF"
+];
 
-function saveLabels(){
+function drawWheel() {
 
-    localStorage.setItem(
-        "pinkWheelLabels",
-        JSON.stringify(labels)
-    );
-}
+    ctx.clearRect(0, 0, SIZE, SIZE);
 
-function polar(r, angle){
+    const sliceCount = labels.length;
+    const sliceAngle = (Math.PI * 2) / sliceCount;
 
-    const rad =
-        (angle - 90)
-        * Math.PI
-        / 180;
+    for (let i = 0; i < sliceCount; i++) {
 
-    return {
-        x: r * Math.cos(rad),
-        y: r * Math.sin(rad)
-    };
-}
+        const start = i * sliceAngle;
+        const end = start + sliceAngle;
 
-function createDefs(){
+        ctx.beginPath();
+        ctx.moveTo(CENTER, CENTER);
+        ctx.arc(CENTER, CENTER, RADIUS, start, end);
+        ctx.closePath();
 
-    const defs =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "defs"
-        );
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
 
-    for(let i = 0; i < COUNT; i++){
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 4;
+        ctx.stroke();
 
-        const grad =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "linearGradient"
-            );
-
-        grad.id = `grad${i}`;
-
-        grad.setAttribute("x1","0%");
-        grad.setAttribute("y1","0%");
-        grad.setAttribute("x2","100%");
-        grad.setAttribute("y2","100%");
-
-        const stop1 =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "stop"
-            );
-
-        stop1.setAttribute(
-            "offset",
-            "0%"
-        );
-
-        stop1.setAttribute(
-            "stop-color",
-            i % 2
-                ? "#f2caca"
-                : "#f9e2e2"
-        );
-
-        const stop2 =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "stop"
-            );
-
-        stop2.setAttribute(
-            "offset",
-            "100%"
-        );
-
-        stop2.setAttribute(
-            "stop-color",
-            i % 2
-                ? "#edbebe"
-                : "#f7d7d7"
-        );
-
-        grad.appendChild(stop1);
-        grad.appendChild(stop2);
-
-        defs.appendChild(grad);
+        drawLabel(labels[i], start + sliceAngle / 2);
     }
 
-    svg.appendChild(defs);
+    ctx.beginPath();
+    ctx.arc(CENTER, CENTER, RADIUS, 0, Math.PI * 2);
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "#F7E4E6";
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(CENTER, CENTER, 14, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
 }
 
-function openEditor(i){
+function drawLabel(text, angle) {
 
-    selectedSlice = i;
+    ctx.save();
 
-    labelEditor.style.display =
-        "block";
+    ctx.translate(CENTER, CENTER);
+    ctx.rotate(angle);
 
-    labelEditor.value =
-        labels[i];
+    ctx.fillStyle = "#B35A6E";
+    ctx.font = "34px Inter";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
-    labelEditor.focus();
+    ctx.fillText(text, RADIUS * 0.62, 0);
 
-    labelEditor.select();
+    ctx.restore();
 }
 
-function render(){
+function spinWheel() {
 
-    svg.innerHTML = "";
-
-    createDefs();
-
-    const radius = 280;
-    const step = 360 / COUNT;
-
-    const outer =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "circle"
-        );
-
-    outer.setAttribute("cx","0");
-    outer.setAttribute("cy","0");
-    outer.setAttribute("r",radius);
-    outer.setAttribute("fill","#fdf5f5");
-
-    svg.appendChild(outer);
-
-    for(
-        let i = 0;
-        i < COUNT;
-        i++
-    ){
-
-        const start =
-            i * step;
-
-        const end =
-            (i + 1) * step;
-
-        const p1 =
-            polar(radius,end);
-
-        const p2 =
-            polar(radius,start);
-
-        const path =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "path"
-            );
-
-        path.setAttribute(
-            "d",
-            `
-            M 0 0
-            L ${p1.x} ${p1.y}
-            A ${radius} ${radius}
-            0 0 0
-            ${p2.x} ${p2.y}
-            Z
-            `
-        );
-
-        path.setAttribute(
-            "fill",
-            `url(#grad${i})`
-        );
-
-        if(editMode){
-
-            path.style.cursor =
-                "pointer";
-
-            path.addEventListener(
-                "click",
-                () => openEditor(i)
-            );
-        }
-
-        svg.appendChild(path);
-
-        const angle =
-            start + step / 2;
-
-        const pos =
-            polar(
-                radius * 0.70,
-                angle
-            );
-
-        const text =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "text"
-            );
-
-        text.textContent =
-            labels[i];
-
-        text.setAttribute(
-            "x",
-            pos.x
-        );
-
-        text.setAttribute(
-            "y",
-            pos.y
-        );
-
-        text.setAttribute(
-            "text-anchor",
-            "middle"
-        );
-
-        text.setAttribute(
-            "dominant-baseline",
-            "middle"
-        );
-
-        text.setAttribute(
-            "fill",
-            editMode
-                ? "#a95f5f"
-                : "#8c6b6b"
-        );
-
-        text.setAttribute(
-            "font-size",
-            "22"
-        );
-
-        text.setAttribute(
-            "font-family",
-            "Cormorant Garamond"
-        );
-
-        text.setAttribute(
-            "transform",
-            `rotate(${angle} ${pos.x} ${pos.y})`
-        );
-
-        if(editMode){
-
-            text.style.cursor =
-                "pointer";
-
-            text.addEventListener(
-                "click",
-                () => openEditor(i)
-            );
-        }
-
-        svg.appendChild(text);
-    }
-
-    const center =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "circle"
-        );
-
-    center.setAttribute("cx","0");
-    center.setAttribute("cy","0");
-    center.setAttribute("r","55");
-    center.setAttribute("fill","#ffffff");
-
-    svg.appendChild(center);
-}
-
-toggleEditor.addEventListener(
-    "click",
-    () => {
-
-        editMode = !editMode;
-
-        if(!editMode){
-
-            labelEditor.style.display =
-                "none";
-
-            selectedSlice = null;
-        }
-
-        toggleEditor.textContent =
-            editMode
-                ? "✓ Done"
-                : "⚙ Edit Labels";
-
-        render();
-    }
-);
-
-labelEditor.addEventListener(
-    "keydown",
-    e => {
-
-        if(
-            e.key === "Enter" &&
-            selectedSlice !== null
-        ){
-
-            labels[selectedSlice] =
-                labelEditor.value.trim()
-                || labels[selectedSlice];
-
-            saveLabels();
-
-            labelEditor.style.display =
-                "none";
-
-            selectedSlice = null;
-
-            render();
-        }
-    }
-);
-
-function spin(){
-
-    if(
-        spinning ||
-        editMode
-    ) return;
+    if (spinning) return;
 
     spinning = true;
 
-    const step =
-        360 / COUNT;
+    const sliceCount = labels.length;
+    const sliceAngle = 360 / sliceCount;
 
-    const winner =
-        Math.floor(
-            Math.random() * COUNT
-        );
+    const chosenSlice =
+        Math.floor(Math.random() * sliceCount);
 
-    const safetyMargin = 10;
+    /*
+       Keep result away from boundaries.
+       Minimum margin of 5 degrees.
+    */
+    const offsetInsideSlice =
+        5 + Math.random() * (sliceAngle - 10);
 
-    const stopAngle =
-        winner * step +
-        safetyMargin +
-        Math.random() *
-        (
-            step -
-            safetyMargin * 2
-        );
+    const landingAngle =
+        chosenSlice * sliceAngle + offsetInsideSlice;
 
-    const extraSpins =
-        360 *
-        (
-            8 +
-            Math.floor(
-                Math.random() * 3
-            )
-        );
+    const extraSpins = 2160;
 
-    rotation +=
+    currentRotation +=
         extraSpins +
-        (360 - stopAngle);
+        (360 - landingAngle);
 
-    svg.style.transform =
-        `rotate(${rotation}deg)`;
+    canvas.style.transform =
+        `rotate(${currentRotation}deg)`;
 
-    setTimeout(
-        () => {
+    setTimeout(() => {
 
-            spinning = false;
+        spinning = false;
 
-        },
-        6000
-    );
+        alert(
+            `Result: ${labels[chosenSlice]}`
+        );
+
+    }, 5000);
 }
 
-spinBtn.addEventListener(
-    "click",
-    spin
-);
+spinBtn.addEventListener("click", spinWheel);
 
-render();
+editBtn.addEventListener("click", () => {
+
+    editMode = !editMode;
+
+    editBtn.classList.toggle("active");
+
+    editBtn.textContent =
+        editMode
+            ? "Editing Enabled"
+            : "Edit Labels";
+});
+
+canvas.addEventListener("click", (event) => {
+
+    if (!editMode || spinning) return;
+
+    const rect = canvas.getBoundingClientRect();
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const x =
+        (event.clientX - rect.left) * scaleX;
+
+    const y =
+        (event.clientY - rect.top) * scaleY;
+
+    const dx = x - CENTER;
+    const dy = y - CENTER;
+
+    const distance =
+        Math.sqrt(dx * dx + dy * dy);
+
+    if (distance > RADIUS) return;
+
+    let angle = Math.atan2(dy, dx);
+
+    if (angle < 0) {
+        angle += Math.PI * 2;
+    }
+
+    const sliceAngle =
+        (Math.PI * 2) / labels.length;
+
+    const sliceIndex =
+        Math.floor(angle / sliceAngle);
+
+    const newLabel = prompt(
+        "Change label:",
+        labels[sliceIndex]
+    );
+
+    if (
+        newLabel &&
+        newLabel.trim() !== ""
+    ) {
+        labels[sliceIndex] =
+            newLabel.trim();
+
+        drawWheel();
+    }
+});
+
+drawWheel();
