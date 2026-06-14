@@ -7,6 +7,11 @@ const spinBtn =
 const toggleEditor =
     document.getElementById("toggleEditor");
 
+const labelEditor =
+    document.getElementById("labelEditor");
+
+let selectedSlice = null;
+
 const COUNT = 8;
 
 let rotation = 0;
@@ -122,24 +127,17 @@ function createDefs(){
 
 function editLabelInline(i){
 
-    const newLabel =
-        window.prompt(
-            "Rename label:",
-            labels[i]
-        );
+    selectedSlice = i;
 
-    if(
-        newLabel !== null &&
-        newLabel.trim()
-    ){
+    labelEditor.style.display =
+        "block";
 
-        labels[i] =
-            newLabel.trim();
+    labelEditor.value =
+        labels[i];
 
-        saveLabels();
+    labelEditor.focus();
 
-        render();
-    }
+    labelEditor.select();
 }
 
 function render(){
@@ -225,6 +223,17 @@ function render(){
             "fill",
             `url(#grad${i})`
         );
+
+        if(editMode){
+
+            path.style.cursor =
+                "pointer";
+
+            path.addEventListener(
+                "click",
+                () => editLabelInline(i)
+            );
+        }
 
         svg.appendChild(path);
 
@@ -349,6 +358,14 @@ toggleEditor.addEventListener(
 
         editMode = !editMode;
 
+        if(!editMode){
+
+    labelEditor.style.display =
+        "none";
+
+    selectedSlice = null;
+}
+
         toggleEditor.textContent =
             editMode
                 ? "✓ Done"
@@ -421,3 +438,28 @@ spinBtn.addEventListener(
 );
 
 render();
+
+labelEditor.addEventListener(
+    "keydown",
+    e => {
+
+        if(
+            e.key === "Enter" &&
+            selectedSlice !== null
+        ){
+
+            labels[selectedSlice] =
+                labelEditor.value.trim()
+                || labels[selectedSlice];
+
+            saveLabels();
+
+            labelEditor.style.display =
+                "none";
+
+            selectedSlice = null;
+
+            render();
+        }
+    }
+);
