@@ -7,15 +7,6 @@ const spinBtn =
 const toggleEditor =
     document.getElementById("toggleEditor");
 
-const editor =
-    document.getElementById("editor");
-
-const inputsContainer =
-    document.getElementById("inputs");
-
-const saveBtn =
-    document.getElementById("saveLabels");
-
 const COUNT = 8;
 
 let rotation = 0;
@@ -166,29 +157,25 @@ function render(){
             "circle"
         );
 
-    outer.setAttribute("cx","0");
-    outer.setAttribute("cy","0");
-    outer.setAttribute("r",radius);
-    outer.setAttribute("fill","#fdf5f5");
-
-    if(editMode){
-
-    text.style.cursor =
-        "pointer";
-
-    text.style.opacity =
-        "0.8";
-
-    text.setAttribute(
-    "fill",
-    "#a95f5f"
-);
-
-    text.addEventListener(
-        "click",
-        () => editLabelInline(i)
+    outer.setAttribute(
+        "cx",
+        "0"
     );
-}
+
+    outer.setAttribute(
+        "cy",
+        "0"
+    );
+
+    outer.setAttribute(
+        "r",
+        radius
+    );
+
+    outer.setAttribute(
+        "fill",
+        "#fdf5f5"
+    );
 
     svg.appendChild(outer);
 
@@ -205,10 +192,16 @@ function render(){
             (i + 1) * step;
 
         const p1 =
-            polar(radius,end);
+            polar(
+                radius,
+                end
+            );
 
         const p2 =
-            polar(radius,start);
+            polar(
+                radius,
+                start
+            );
 
         const path =
             document.createElementNS(
@@ -275,7 +268,9 @@ function render(){
 
         text.setAttribute(
             "fill",
-            "#8c6b6b"
+            editMode
+                ? "#a95f5f"
+                : "#8c6b6b"
         );
 
         text.setAttribute(
@@ -292,6 +287,20 @@ function render(){
             "transform",
             `rotate(${angle} ${pos.x} ${pos.y})`
         );
+
+        if(editMode){
+
+            text.style.cursor =
+                "pointer";
+
+            text.style.opacity =
+                "0.85";
+
+            text.addEventListener(
+                "click",
+                () => editLabelInline(i)
+            );
+        }
 
         svg.appendChild(text);
     }
@@ -325,34 +334,6 @@ function render(){
     svg.appendChild(center);
 }
 
-function renderInputs(){
-
-    inputsContainer.innerHTML = "";
-
-    labels.forEach(
-        (label,index) => {
-
-            const input =
-                document.createElement(
-                    "input"
-                );
-
-            input.className =
-                "label-input";
-
-            input.value =
-                label;
-
-            input.dataset.index =
-                index;
-
-            inputsContainer.appendChild(
-                input
-            );
-        }
-    );
-}
-
 toggleEditor.addEventListener(
     "click",
     () => {
@@ -368,31 +349,12 @@ toggleEditor.addEventListener(
     }
 );
 
-saveBtn.addEventListener(
-    "click",
-    () => {
-
-        const inputs =
-            document.querySelectorAll(
-                ".label-input"
-            );
-
-        labels =
-            [...inputs].map(
-                input =>
-                    input.value.trim()
-                    || "Label"
-            );
-
-        saveLabels();
-
-        render();
-    }
-);
-
 function spin(){
 
-    if(spinning) return;
+    if(
+        spinning ||
+        editMode
+    ) return;
 
     spinning = true;
 
@@ -410,7 +372,10 @@ function spin(){
         winner * step +
         safetyMargin +
         Math.random() *
-        (step - safetyMargin * 2);
+        (
+            step -
+            safetyMargin * 2
+        );
 
     const extraSpins =
         360 *
@@ -423,16 +388,22 @@ function spin(){
 
     rotation +=
         extraSpins +
-        (360 - stopAngle);
+        (
+            360 -
+            stopAngle
+        );
 
     svg.style.transform =
         `rotate(${rotation}deg)`;
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        spinning = false;
+            spinning = false;
 
-    }, 6000);
+        },
+        6000
+    );
 }
 
 spinBtn.addEventListener(
