@@ -179,6 +179,11 @@ function render(){
     text.style.opacity =
         "0.8";
 
+    text.setAttribute(
+    "fill",
+    "#a95f5f"
+);
+
     text.addEventListener(
         "click",
         () => editLabelInline(i)
