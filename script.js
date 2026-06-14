@@ -10,13 +10,12 @@ const toggleEditor =
 const labelEditor =
     document.getElementById("labelEditor");
 
-let selectedSlice = null;
-
 const COUNT = 8;
 
 let rotation = 0;
 let spinning = false;
 let editMode = false;
+let selectedSlice = null;
 
 const defaults = [
     "Label 1",
@@ -125,7 +124,7 @@ function createDefs(){
     svg.appendChild(defs);
 }
 
-function editLabelInline(i){
+function openEditor(i){
 
     selectedSlice = i;
 
@@ -155,25 +154,10 @@ function render(){
             "circle"
         );
 
-    outer.setAttribute(
-        "cx",
-        "0"
-    );
-
-    outer.setAttribute(
-        "cy",
-        "0"
-    );
-
-    outer.setAttribute(
-        "r",
-        radius
-    );
-
-    outer.setAttribute(
-        "fill",
-        "#fdf5f5"
-    );
+    outer.setAttribute("cx","0");
+    outer.setAttribute("cy","0");
+    outer.setAttribute("r",radius);
+    outer.setAttribute("fill","#fdf5f5");
 
     svg.appendChild(outer);
 
@@ -190,16 +174,10 @@ function render(){
             (i + 1) * step;
 
         const p1 =
-            polar(
-                radius,
-                end
-            );
+            polar(radius,end);
 
         const p2 =
-            polar(
-                radius,
-                start
-            );
+            polar(radius,start);
 
         const path =
             document.createElementNS(
@@ -231,7 +209,7 @@ function render(){
 
             path.addEventListener(
                 "click",
-                () => editLabelInline(i)
+                () => openEditor(i)
             );
         }
 
@@ -297,26 +275,14 @@ function render(){
             `rotate(${angle} ${pos.x} ${pos.y})`
         );
 
-
         if(editMode){
 
             text.style.cursor =
                 "pointer";
 
-            text.style.opacity =
-                "0.85";
-
             text.addEventListener(
                 "click",
-                () => {
-
-                    console.log(
-                        "clicked",
-                        labels[i]
-                    );
-
-                    editLabelInline(i);
-                }
+                () => openEditor(i)
             );
         }
 
@@ -329,25 +295,10 @@ function render(){
             "circle"
         );
 
-    center.setAttribute(
-        "cx",
-        "0"
-    );
-
-    center.setAttribute(
-        "cy",
-        "0"
-    );
-
-    center.setAttribute(
-        "r",
-        "55"
-    );
-
-    center.setAttribute(
-        "fill",
-        "#ffffff"
-    );
+    center.setAttribute("cx","0");
+    center.setAttribute("cy","0");
+    center.setAttribute("r","55");
+    center.setAttribute("fill","#ffffff");
 
     svg.appendChild(center);
 }
@@ -360,18 +311,43 @@ toggleEditor.addEventListener(
 
         if(!editMode){
 
-    labelEditor.style.display =
-        "none";
+            labelEditor.style.display =
+                "none";
 
-    selectedSlice = null;
-}
+            selectedSlice = null;
+        }
 
         toggleEditor.textContent =
             editMode
                 ? "✓ Done"
                 : "⚙ Edit Labels";
 
-        console.log("edit mode:", editMode);
+        render();
+    }
+);
+
+labelEditor.addEventListener(
+    "keydown",
+    e => {
+
+        if(
+            e.key === "Enter" &&
+            selectedSlice !== null
+        ){
+
+            labels[selectedSlice] =
+                labelEditor.value.trim()
+                || labels[selectedSlice];
+
+            saveLabels();
+
+            labelEditor.style.display =
+                "none";
+
+            selectedSlice = null;
+
+            render();
+        }
     }
 );
 
@@ -414,10 +390,7 @@ function spin(){
 
     rotation +=
         extraSpins +
-        (
-            360 -
-            stopAngle
-        );
+        (360 - stopAngle);
 
     svg.style.transform =
         `rotate(${rotation}deg)`;
@@ -438,28 +411,3 @@ spinBtn.addEventListener(
 );
 
 render();
-
-labelEditor.addEventListener(
-    "keydown",
-    e => {
-
-        if(
-            e.key === "Enter" &&
-            selectedSlice !== null
-        ){
-
-            labels[selectedSlice] =
-                labelEditor.value.trim()
-                || labels[selectedSlice];
-
-            saveLabels();
-
-            labelEditor.style.display =
-                "none";
-
-            selectedSlice = null;
-
-            render();
-        }
-    }
-);
