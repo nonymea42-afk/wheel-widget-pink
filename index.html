@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pink Wheel Widget</title>
+    <title>Elegant Wheel</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,17 +12,41 @@
 
     <div class="wheel-container">
 
-        <canvas id="wheel" width="1000" height="1000"></canvas>
+        <div class="pointer"></div>
 
-        <button id="spinBtn" class="center-btn">
-            SPIN
+        <canvas
+            id="wheel"
+            width="1000"
+            height="1000">
+        </canvas>
+
+        <button
+            id="spinBtn"
+            class="center-btn">
         </button>
 
     </div>
 
-    <button id="editBtn" class="edit-btn">
+    <button
+        id="editBtn"
+        class="edit-btn">
         Edit Labels
     </button>
+
+    <div
+        id="labelEditor"
+        class="label-editor hidden">
+
+        <input
+            id="labelInput"
+            type="text"
+            maxlength="40">
+
+        <button id="saveLabel">
+            Save
+        </button>
+
+    </div>
 
 </div>
 
