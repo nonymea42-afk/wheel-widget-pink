@@ -345,7 +345,7 @@ toggleEditor.addEventListener(
                 ? "✓ Done"
                 : "⚙ Edit Labels";
 
-        render();
+        console.log("edit mode:", editMode);
     }
 );
 
