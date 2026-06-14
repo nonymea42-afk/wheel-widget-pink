@@ -1,46 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
-
-<title>Pink Spin Wheel</title>
-
-<link rel="stylesheet" href="style.css">
-
-<link
-href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap"
-rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pink Wheel Widget</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="wheel-wrapper">
+<div class="widget">
 
-    <div class="pointer"></div>
+    <div class="wheel-container">
 
-    <svg
-        id="wheel"
-        viewBox="-300 -300 600 600">
-    </svg>
+        <canvas id="wheel" width="1000" height="1000"></canvas>
 
-    <button id="spinBtn">
-        SPIN
+        <button id="spinBtn" class="center-btn">
+            SPIN
+        </button>
+
+    </div>
+
+    <button id="editBtn" class="edit-btn">
+        Edit Labels
     </button>
 
 </div>
-
-<input
-    id="labelEditor"
-    type="text"
-    placeholder="Rename slice..."
->
-
-<button id="toggleEditor">
-⚙ Edit Labels
-</button>
 
 <script src="script.js"></script>
 
