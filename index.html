@@ -1,54 +1,53 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elegant Wheel</title>
-    <link rel="stylesheet" href="style.css">
+
+<meta charset="UTF-8">
+
+<meta
+ name="viewport"
+ content="width=device-width, initial-scale=1.0">
+
+<title>Pink Spin Wheel</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap"
+rel="stylesheet">
+
 </head>
+
 <body>
 
-<div class="widget">
+<input
+id="labelEditor"
+type="text"
+placeholder="Rename slice..."
 
-    <div class="wheel-container">
+>
 
-        <div class="pointer"></div>
+<div class="wheel-wrapper">
 
-        <canvas
-            id="wheel"
-            width="1000"
-            height="1000">
-        </canvas>
+```
+<div class="pointer"></div>
 
-        <button
-            id="spinBtn"
-            class="center-btn">
-        </button>
+<svg
+    id="wheel"
+    viewBox="-300 -300 600 600">
+</svg>
 
-    </div>
-
-    <button
-        id="editBtn"
-        class="edit-btn">
-        Edit Labels
-    </button>
-
-    <div
-        id="labelEditor"
-        class="label-editor hidden">
-
-        <input
-            id="labelInput"
-            type="text"
-            maxlength="40">
-
-        <button id="saveLabel">
-            Save
-        </button>
-
-    </div>
+<button id="spinBtn">
+    SPIN
+</button>
+```
 
 </div>
+
+<button id="toggleEditor">
+    ⚙ Edit Labels
+</button>
 
 <script src="script.js"></script>
 
