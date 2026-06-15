@@ -1,328 +1,364 @@
 const svg =
-document.getElementById("wheel");
+    document.getElementById("wheel");
 
 const spinBtn =
-document.getElementById("spinBtn");
+    document.getElementById("spinBtn");
 
-const labelEditor =
-document.getElementById("labelEditor");
-
-const toggleEditor =
-document.getElementById("toggleEditor");
+const result =
+    document.getElementById("result");
 
 const COUNT = 8;
 
 let rotation = 0;
 let spinning = false;
 
-let editMode = false;
-let editingIndex = null;
-
 const defaults = [
-"Label 1",
-"Label 2",
-"Label 3",
-"Label 4",
-"Label 5",
-"Label 6",
-"Label 7",
-"Label 8"
+    "Read",
+    "Study",
+    "Movie",
+    "Journal",
+    "Coffee",
+    "Music",
+    "Walk",
+    "Nap"
 ];
 
 let labels =
-JSON.parse(
-localStorage.getItem(
-"pinkWheelLabels"
-)
-) || [...defaults];
+    JSON.parse(
+        localStorage.getItem(
+            "pinkWheelLabels"
+        )
+    ) || defaults;
 
 function saveLabels(){
 
-```
-localStorage.setItem(
-    "pinkWheelLabels",
-    JSON.stringify(labels)
-);
-```
-
+    localStorage.setItem(
+        "pinkWheelLabels",
+        JSON.stringify(labels)
+    );
 }
 
 function polar(r, angle){
 
-```
-const rad =
-    (angle - 90)
-    * Math.PI
-    / 180;
+    const rad =
+        (angle - 90)
+        * Math.PI
+        / 180;
 
-return {
-    x: r * Math.cos(rad),
-    y: r * Math.sin(rad)
-};
-```
-
+    return {
+        x: r * Math.cos(rad),
+        y: r * Math.sin(rad)
+    };
 }
 
-function beginEdit(index){
+function createDefs(){
 
-```
-if(!editMode) return;
+    const defs =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "defs"
+        );
 
-editingIndex = index;
+    for(let i = 0; i < COUNT; i++){
 
-labelEditor.style.display =
-    "block";
+        const grad =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "linearGradient"
+            );
 
-labelEditor.value =
-    labels[index];
+        grad.id = `grad${i}`;
 
-labelEditor.focus();
-labelEditor.select();
-```
+        grad.setAttribute("x1","0%");
+        grad.setAttribute("y1","0%");
+        grad.setAttribute("x2","100%");
+        grad.setAttribute("y2","100%");
 
+        const stop1 =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "stop"
+            );
+
+        stop1.setAttribute(
+            "offset",
+            "0%"
+        );
+
+        stop1.setAttribute(
+            "stop-color",
+            i % 2
+                ? "#f2caca"
+                : "#f9e2e2"
+        );
+
+        const stop2 =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "stop"
+            );
+
+        stop2.setAttribute(
+            "offset",
+            "100%"
+        );
+
+        stop2.setAttribute(
+            "stop-color",
+            i % 2
+                ? "#edbebe"
+                : "#f7d7d7"
+        );
+
+        grad.appendChild(stop1);
+        grad.appendChild(stop2);
+
+        defs.appendChild(grad);
+    }
+
+    svg.appendChild(defs);
 }
 
-function saveCurrentLabel(){
+function editLabel(i){
 
-```
-if(editingIndex === null)
-    return;
+    const value =
+        prompt(
+            "Label:",
+            labels[i]
+        );
 
-const value =
-    labelEditor.value.trim();
+    if(
+        value !== null &&
+        value.trim()
+    ){
+        labels[i] =
+            value.trim();
 
-if(value){
+        saveLabels();
 
-    labels[editingIndex] =
-        value;
-
-    saveLabels();
-
-    render();
-}
-```
-
+        render();
+    }
 }
 
 function render(){
 
-```
-svg.innerHTML = "";
+    svg.innerHTML = "";
 
-const radius = 280;
-const step = 360 / COUNT;
+    createDefs();
 
-for(let i = 0; i < COUNT; i++){
+    const radius = 280;
+    const step = 360 / COUNT;
 
-    const start =
-        i * step;
-
-    const end =
-        (i + 1) * step;
-
-    const p1 =
-        polar(radius,end);
-
-    const p2 =
-        polar(radius,start);
-
-    const path =
+    const outer =
         document.createElementNS(
             "http://www.w3.org/2000/svg",
-            "path"
+            "circle"
         );
 
-    path.setAttribute(
-        "d",
-        `
-        M 0 0
-        L ${p1.x} ${p1.y}
-        A ${radius} ${radius}
-        0 0 0
-        ${p2.x} ${p2.y}
-        Z
-        `
-    );
+    outer.setAttribute("cx","0");
+    outer.setAttribute("cy","0");
+    outer.setAttribute("r",radius);
+    outer.setAttribute("fill","#fdf5f5");
 
-    path.setAttribute(
-        "fill",
-        i % 2
-            ? "#e9cfcf"
-            : "#f1dddd"
-    );
+    svg.appendChild(outer);
 
-    svg.appendChild(path);
+    for(
+        let i = 0;
+        i < COUNT;
+        i++
+    ){
 
-    const angle =
-        start + step / 2;
+        const start =
+            i * step;
 
-    const pos =
-        polar(
-            radius * 0.72,
-            angle
+        const end =
+            (i + 1) * step;
+
+        const p1 =
+            polar(radius,end);
+
+        const p2 =
+            polar(radius,start);
+
+        const path =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "path"
+            );
+
+        path.setAttribute(
+            "d",
+            `
+            M 0 0
+            L ${p1.x} ${p1.y}
+            A ${radius} ${radius}
+            0 0 0
+            ${p2.x} ${p2.y}
+            Z
+            `
         );
 
-    const text =
+        path.setAttribute(
+            "fill",
+            `url(#grad${i})`
+        );
+
+        svg.appendChild(path);
+
+        const angle =
+            start + step / 2;
+
+        const pos =
+            polar(
+                radius * 0.70,
+                angle
+            );
+
+        const text =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+            );
+
+        text.textContent =
+            labels[i];
+
+        text.setAttribute(
+            "x",
+            pos.x
+        );
+
+        text.setAttribute(
+            "y",
+            pos.y
+        );
+
+        text.setAttribute(
+            "text-anchor",
+            "middle"
+        );
+
+        text.setAttribute(
+            "dominant-baseline",
+            "middle"
+        );
+
+        text.setAttribute(
+            "fill",
+            "#8c6b6b"
+        );
+
+        text.setAttribute(
+            "font-size",
+            "22"
+        );
+
+        text.setAttribute(
+            "font-family",
+            "Cormorant Garamond"
+        );
+
+        text.setAttribute(
+            "class",
+            "slice-label"
+        );
+
+        text.setAttribute(
+            "transform",
+            `rotate(${angle} ${pos.x} ${pos.y})`
+        );
+
+        text.addEventListener(
+            "click",
+            () => editLabel(i)
+        );
+
+        svg.appendChild(text);
+    }
+
+    const center =
         document.createElementNS(
             "http://www.w3.org/2000/svg",
-            "text"
+            "circle"
         );
 
-    text.textContent =
-        labels[i];
-
-    text.setAttribute(
-        "x",
-        pos.x
+    center.setAttribute(
+        "cx",
+        "0"
     );
 
-    text.setAttribute(
-        "y",
-        pos.y
+    center.setAttribute(
+        "cy",
+        "0"
     );
 
-    text.setAttribute(
-        "text-anchor",
-        "middle"
+    center.setAttribute(
+        "r",
+        "55"
     );
 
-    text.setAttribute(
-        "dominant-baseline",
-        "middle"
-    );
-
-    text.setAttribute(
+    center.setAttribute(
         "fill",
-        "#856d6d"
+        "#ffffff"
     );
 
-    text.setAttribute(
-        "font-size",
-        "22"
-    );
-
-    text.setAttribute(
-        "font-family",
-        "Cormorant Garamond"
-    );
-
-    text.setAttribute(
-        "transform",
-        `rotate(${angle} ${pos.x} ${pos.y})`
-    );
-
-    text.style.cursor =
-        editMode
-            ? "pointer"
-            : "default";
-
-    text.addEventListener(
-        "click",
-        () => beginEdit(i)
-    );
-
-    svg.appendChild(text);
-}
-```
-
+    svg.appendChild(center);
 }
 
 function spin(){
 
-```
-if(spinning) return;
+    if(spinning) return;
 
-spinning = true;
+    spinning = true;
 
-const step =
-    360 / COUNT;
+    result.textContent = "";
 
-const winner =
-    Math.floor(
-        Math.random() * COUNT
-    );
+    const step =
+        360 / COUNT;
 
-const safetyMargin = 10;
-
-const stopAngle =
-    winner * step +
-    safetyMargin +
-    Math.random() *
-    (step - safetyMargin * 2);
-
-const extraSpins =
-    360 *
-    (
-        8 +
+    const winner =
         Math.floor(
-            Math.random() * 3
-        )
-    );
+            Math.random() * COUNT
+        );
 
-rotation +=
-    extraSpins +
-    (360 - stopAngle);
+    // Prevent stopping near slice dividers
+    const safetyMargin = 10;
 
-svg.style.transform =
-    `rotate(${rotation}deg)`;
+    const stopAngle =
+        winner * step +
+        safetyMargin +
+        Math.random() *
+        (step - safetyMargin * 2);
 
-setTimeout(() => {
+    const extraSpins =
+        360 *
+        (
+            8 +
+            Math.floor(
+                Math.random() * 3
+            )
+        );
 
-    spinning = false;
+    rotation +=
+        extraSpins +
+        (360 - stopAngle);
 
-}, 6000);
-```
+    svg.style.transform =
+        `rotate(${rotation}deg)`;
 
+    setTimeout(() => {
+
+        result.textContent =
+            labels[winner];
+
+        spinning = false;
+
+    }, 6000);
 }
-
-toggleEditor.addEventListener(
-"click",
-() => {
-
-```
-    editMode = !editMode;
-
-    if(editMode){
-
-        toggleEditor.textContent =
-            "✓ Done";
-
-    }else{
-
-        saveCurrentLabel();
-
-        editingIndex = null;
-
-        labelEditor.style.display =
-            "none";
-
-        toggleEditor.textContent =
-            "⚙ Edit Labels";
-    }
-
-    render();
-}
-```
-
-);
-
-labelEditor.addEventListener(
-"keydown",
-e => {
-
-```
-    if(e.key === "Enter"){
-
-        saveCurrentLabel();
-    }
-}
-```
-
-);
 
 spinBtn.addEventListener(
-"click",
-spin
+    "click",
+    spin
 );
 
 render();
