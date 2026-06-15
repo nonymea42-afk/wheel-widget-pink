@@ -156,22 +156,26 @@ body{
 
 #editBtn{
 
-    width:24%;
+    margin-top:20px;
 
-    aspect-ratio:4/1;
-
-    min-width:120px;
+    padding:
+        10px 22px;
 
     border:none;
 
-    border-radius:999px;
+    border-radius:30px;
 
-    font-size:
-        clamp(
-            14px,
-            1.8vw,
-            22px
-        );
+    background:#f4dede;
+
+    color:#876767;
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    font-size:20px;
+
+    cursor:pointer;
 }
 
 #overlay{
