@@ -1,335 +1,414 @@
-const wheel =
-document.getElementById("wheel");
+const svg = document.getElementById("wheel");
 
-const spinBtn =
-document.getElementById("spinBtn");
-
-const toggleEditor =
-document.getElementById("toggleEditor");
+const spinBtn = document.getElementById("spinBtn");
 
 const labelEditor =
 document.getElementById("labelEditor");
 
-const COLORS = [
-"#f9e2e2",
-"#f2caca"
-];
+const toggleEditor =
+document.getElementById("toggleEditor");
 
-const STORAGE_KEY =
-"pink-wheel-labels";
+const COUNT = 8;
+
+let rotation = 0;
+let spinning = false;
+
+let editMode = false;
+let editingIndex = null;
+
+const defaults = [
+"Label 1",
+"Label 2",
+"Label 3",
+"Label 4",
+"Label 5",
+"Label 6",
+"Label 7",
+"Label 8"
+];
 
 let labels =
 JSON.parse(
 localStorage.getItem(
-STORAGE_KEY
+"pinkWheelLabels"
 )
-) || [
-"One",
-"Two",
-"Three",
-"Four",
-"Five",
-"Six",
-"Seven",
-"Eight"
-];
+) || [...defaults];
 
-let rotation = 0;
-
-let spinning = false;
-
-let editMode = false;
-
-let selectedSlice = null;
-
-function saveLabels(){
+function saveLabels() {
 
 ```
 localStorage.setItem(
-    STORAGE_KEY,
+    "pinkWheelLabels",
     JSON.stringify(labels)
 );
 ```
 
 }
 
-function polarToCartesian(
-r,
-angle
-){
+function polar(r, angle) {
 
 ```
+const rad =
+    (angle - 90) *
+    Math.PI / 180;
+
 return {
-
-    x:
-        r *
-        Math.cos(angle),
-
-    y:
-        r *
-        Math.sin(angle)
+    x: r * Math.cos(rad),
+    y: r * Math.sin(rad)
 };
 ```
 
 }
 
-function describeSlice(
-start,
-end,
-radius
-){
+function createDefs() {
 
 ```
-const p1 =
-    polarToCartesian(
-        radius,
-        start
+const defs =
+    document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "defs"
     );
 
-const p2 =
-    polarToCartesian(
-        radius,
-        end
+for (let i = 0; i < COUNT; i++) {
+
+    const grad =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "linearGradient"
+        );
+
+    grad.id = `grad${i}`;
+
+    grad.setAttribute("x1", "0%");
+    grad.setAttribute("y1", "0%");
+    grad.setAttribute("x2", "100%");
+    grad.setAttribute("y2", "100%");
+
+    const stop1 =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "stop"
+        );
+
+    stop1.setAttribute(
+        "offset",
+        "0%"
     );
 
-return `
-    M 0 0
-    L ${p1.x} ${p1.y}
-    A ${radius} ${radius}
-      0 0 1
-      ${p2.x} ${p2.y}
-    Z
-`;
+    stop1.setAttribute(
+        "stop-color",
+        i % 2
+            ? "#d8e7f1"
+            : "#e9f2f8"
+    );
+
+    const stop2 =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "stop"
+        );
+
+    stop2.setAttribute(
+        "offset",
+        "100%"
+    );
+
+    stop2.setAttribute(
+        "stop-color",
+        i % 2
+            ? "#c8dae6"
+            : "#dceaf3"
+    );
+
+    grad.appendChild(stop1);
+    grad.appendChild(stop2);
+
+    defs.appendChild(grad);
+}
+
+svg.appendChild(defs);
 ```
 
 }
 
-function openEditor(i){
+function beginEdit(index) {
 
 ```
-selectedSlice = i;
+if (!editMode)
+    return;
 
-labelEditor.value =
-    labels[i];
+editingIndex = index;
 
 labelEditor.style.display =
     "block";
 
-labelEditor.focus();
+labelEditor.value =
+    labels[index];
 
+labelEditor.focus();
 labelEditor.select();
 ```
 
 }
 
-function render(){
+function saveCurrentLabel() {
 
 ```
-wheel.innerHTML = "";
+if (editingIndex === null)
+    return;
 
-const count =
-    labels.length;
+const value =
+    labelEditor.value.trim();
+
+if (value) {
+
+    labels[editingIndex] =
+        value;
+
+    saveLabels();
+    render();
+}
+```
+
+}
+
+function render() {
+
+```
+svg.innerHTML = "";
+
+createDefs();
+
+const radius = 280;
+const step = 360 / COUNT;
+
+const outer =
+    document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "circle"
+    );
+
+outer.setAttribute("cx", "0");
+outer.setAttribute("cy", "0");
+outer.setAttribute("r", radius);
+outer.setAttribute("fill", "#f7fbfe");
+
+svg.appendChild(outer);
+
+for (let i = 0; i < COUNT; i++) {
+
+    const start =
+        i * step;
+
+    const end =
+        (i + 1) * step;
+
+    const p1 =
+        polar(radius, end);
+
+    const p2 =
+        polar(radius, start);
+
+    const path =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
+
+    path.setAttribute(
+        "d",
+        `
+        M 0 0
+        L ${p1.x} ${p1.y}
+        A ${radius} ${radius}
+        0 0 0
+        ${p2.x} ${p2.y}
+        Z
+        `
+    );
+
+    path.setAttribute(
+        "fill",
+        `url(#grad${i})`
+    );
+
+    svg.appendChild(path);
+
+    const angle =
+        start + step / 2;
+
+    const pos =
+        polar(
+            radius * 0.70,
+            angle
+        );
+
+    const text =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+    text.textContent =
+        labels[i];
+
+    text.setAttribute(
+        "x",
+        pos.x
+    );
+
+    text.setAttribute(
+        "y",
+        pos.y
+    );
+
+    text.setAttribute(
+        "text-anchor",
+        "middle"
+    );
+
+    text.setAttribute(
+        "dominant-baseline",
+        "middle"
+    );
+
+    text.setAttribute(
+        "fill",
+        "#74899b"
+    );
+
+    text.setAttribute(
+        "font-size",
+        "22"
+    );
+
+    text.setAttribute(
+        "font-family",
+        "Cormorant Garamond"
+    );
+
+    text.setAttribute(
+        "transform",
+        `rotate(${angle} ${pos.x} ${pos.y})`
+    );
+
+    text.style.cursor =
+        editMode
+            ? "pointer"
+            : "default";
+
+    text.addEventListener(
+        "click",
+        () => beginEdit(i)
+    );
+
+    svg.appendChild(text);
+}
+
+const center =
+    document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "circle"
+    );
+
+center.setAttribute(
+    "cx",
+    "0"
+);
+
+center.setAttribute(
+    "cy",
+    "0"
+);
+
+center.setAttribute(
+    "r",
+    "55"
+);
+
+center.setAttribute(
+    "fill",
+    "#ffffff"
+);
+
+svg.appendChild(center);
+```
+
+}
+
+function spin() {
+
+```
+if (spinning)
+    return;
+
+spinning = true;
 
 const step =
-    (Math.PI * 2) /
-    count;
+    360 / COUNT;
 
-labels.forEach(
-    (
-        label,
-        i
-    ) => {
-
-        const start =
-            i * step;
-
-        const end =
-            start + step;
-
-        const path =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "path"
-            );
-
-        path.setAttribute(
-            "d",
-            describeSlice(
-                start,
-                end,
-                280
-            )
-        );
-
-        path.setAttribute(
-            "fill",
-            COLORS[
-                i %
-                COLORS.length
-            ]
-        );
-
-        if(editMode){
-
-            path.style.cursor =
-                "pointer";
-
-            path.addEventListener(
-                "click",
-                () =>
-                    openEditor(i)
-            );
-        }
-
-        wheel.appendChild(
-            path
-        );
-
-        const angle =
-            start +
-            step / 2;
-
-        const pos =
-            polarToCartesian(
-                180,
-                angle
-            );
-
-        const text =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "text"
-            );
-
-        text.setAttribute(
-            "x",
-            pos.x
-        );
-
-        text.setAttribute(
-            "y",
-            pos.y
-        );
-
-        text.setAttribute(
-            "text-anchor",
-            "middle"
-        );
-
-        text.setAttribute(
-            "dominant-baseline",
-            "middle"
-        );
-
-        text.setAttribute(
-            "fill",
-            "#876767"
-        );
-
-        text.setAttribute(
-            "font-size",
-            "24"
-        );
-
-        text.setAttribute(
-            "class",
-            "slice-label"
-        );
-
-        text.textContent =
-            label;
-
-        wheel.appendChild(
-            text
-        );
-    }
-);
-```
-
-}
-
-spinBtn.addEventListener(
-"click",
-() => {
-
-```
-    if(
-        spinning ||
-        editMode
-    ){
-        return;
-    }
-
-    spinning = true;
-
-    const count =
-        labels.length;
-
-    const slice =
-        Math.floor(
-            Math.random() *
-            count
-        );
-
-    const sliceAngle =
-        360 / count;
-
-    const centerOffset =
-        sliceAngle / 2;
-
-    const target =
-        360 -
-        (
-            slice *
-            sliceAngle +
-            centerOffset
-        );
-
-    rotation +=
-        360 * 6 +
-        target;
-
-    wheel.style.transform =
-        `rotate(${rotation}deg)`;
-
-    setTimeout(
-        () => {
-            spinning =
-                false;
-        },
-        6000
+const winner =
+    Math.floor(
+        Math.random() * COUNT
     );
-}
+
+const safetyMargin = 10;
+
+const stopAngle =
+    winner * step +
+    safetyMargin +
+    Math.random() *
+    (step - safetyMargin * 2);
+
+const extraSpins =
+    360 *
+    (
+        8 +
+        Math.floor(
+            Math.random() * 3
+        )
+    );
+
+rotation +=
+    extraSpins +
+    (360 - stopAngle);
+
+svg.style.transform =
+    `rotate(${rotation}deg)`;
+
+setTimeout(() => {
+
+    spinning = false;
+
+}, 6000);
 ```
 
-);
+}
 
 toggleEditor.addEventListener(
 "click",
 () => {
 
 ```
-    editMode =
-        !editMode;
+    editMode = !editMode;
 
-    if(!editMode){
+    if (editMode) {
+
+        toggleEditor.textContent =
+            "✓ Done";
+
+    } else {
+
+        saveCurrentLabel();
+
+        editingIndex = null;
 
         labelEditor.style.display =
             "none";
 
-        selectedSlice =
-            null;
+        toggleEditor.textContent =
+            "⚙ Edit Labels";
     }
-
-    toggleEditor.textContent =
-        editMode
-            ? "✓ Done"
-            : "⚙ Edit Labels";
-
-    toggleEditor.style.background =
-        editMode
-            ? "linear-gradient(135deg,#efd4a3,#d8a86c)"
-            : "linear-gradient(135deg,#f8e8eb,#f3d9df)";
 
     render();
 }
@@ -342,32 +421,20 @@ labelEditor.addEventListener(
 e => {
 
 ```
-    if(
-        e.key === "Enter" &&
-        selectedSlice !== null
-    ){
+    if (e.key === "Enter") {
 
-        labels[
-            selectedSlice
-        ] =
-            labelEditor.value.trim()
-            || labels[
-                selectedSlice
-            ];
+        saveCurrentLabel();
 
-        saveLabels();
-
-        labelEditor.style.display =
-            "none";
-
-        selectedSlice =
-            null;
-
-        render();
+        labelEditor.blur();
     }
 }
 ```
 
+);
+
+spinBtn.addEventListener(
+"click",
+spin
 );
 
 render();
