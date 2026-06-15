@@ -161,6 +161,10 @@ function openEditor(i){
         "show"
     );
 
+    document.body.classList.add(
+        "popup-open"
+    );
+
     labelInput.focus();
 
     labelInput.select();
@@ -170,6 +174,10 @@ function closeEditor(){
 
     overlay.classList.remove(
         "show"
+    );
+
+    document.body.classList.remove(
+        "popup-open"
     );
 
     currentSlice = null;
