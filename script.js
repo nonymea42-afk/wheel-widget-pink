@@ -6,6 +6,34 @@ const spinBtn =
 
 const result =
     document.getElementById("result");
+const editBtn =
+    document.getElementById(
+        "editBtn"
+    );
+
+const overlay =
+    document.getElementById(
+        "overlay"
+    );
+
+const labelInput =
+    document.getElementById(
+        "labelInput"
+    );
+
+const saveLabel =
+    document.getElementById(
+        "saveLabel"
+    );
+
+const cancelLabel =
+    document.getElementById(
+        "cancelLabel"
+    );
+
+let editMode = false;
+
+let currentSlice = null;
 
 const COUNT = 8;
 
