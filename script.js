@@ -1,6 +1,8 @@
-const svg = document.getElementById("wheel");
+const svg =
+document.getElementById("wheel");
 
-const spinBtn = document.getElementById("spinBtn");
+const spinBtn =
+document.getElementById("spinBtn");
 
 const labelEditor =
 document.getElementById("labelEditor");
@@ -34,7 +36,7 @@ localStorage.getItem(
 )
 ) || [...defaults];
 
-function saveLabels() {
+function saveLabels(){
 
 ```
 localStorage.setItem(
@@ -45,12 +47,13 @@ localStorage.setItem(
 
 }
 
-function polar(r, angle) {
+function polar(r, angle){
 
 ```
 const rad =
-    (angle - 90) *
-    Math.PI / 180;
+    (angle - 90)
+    * Math.PI
+    / 180;
 
 return {
     x: r * Math.cos(rad),
@@ -60,82 +63,10 @@ return {
 
 }
 
-function createDefs() {
+function beginEdit(index){
 
 ```
-const defs =
-    document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "defs"
-    );
-
-for (let i = 0; i < COUNT; i++) {
-
-    const grad =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "linearGradient"
-        );
-
-    grad.id = `grad${i}`;
-
-    grad.setAttribute("x1", "0%");
-    grad.setAttribute("y1", "0%");
-    grad.setAttribute("x2", "100%");
-    grad.setAttribute("y2", "100%");
-
-    const stop1 =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "stop"
-        );
-
-    stop1.setAttribute(
-        "offset",
-        "0%"
-    );
-
-    stop1.setAttribute(
-        "stop-color",
-        i % 2
-            ? "#d8e7f1"
-            : "#e9f2f8"
-    );
-
-    const stop2 =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "stop"
-        );
-
-    stop2.setAttribute(
-        "offset",
-        "100%"
-    );
-
-    stop2.setAttribute(
-        "stop-color",
-        i % 2
-            ? "#c8dae6"
-            : "#dceaf3"
-    );
-
-    grad.appendChild(stop1);
-    grad.appendChild(stop2);
-
-    defs.appendChild(grad);
-}
-
-svg.appendChild(defs);
-```
-
-}
-
-function beginEdit(index) {
-
-```
-if (!editMode)
-    return;
+if(!editMode) return;
 
 editingIndex = index;
 
@@ -151,51 +82,37 @@ labelEditor.select();
 
 }
 
-function saveCurrentLabel() {
+function saveCurrentLabel(){
 
 ```
-if (editingIndex === null)
+if(editingIndex === null)
     return;
 
 const value =
     labelEditor.value.trim();
 
-if (value) {
+if(value){
 
     labels[editingIndex] =
         value;
 
     saveLabels();
+
     render();
 }
 ```
 
 }
 
-function render() {
+function render(){
 
 ```
 svg.innerHTML = "";
 
-createDefs();
-
 const radius = 280;
 const step = 360 / COUNT;
 
-const outer =
-    document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "circle"
-    );
-
-outer.setAttribute("cx", "0");
-outer.setAttribute("cy", "0");
-outer.setAttribute("r", radius);
-outer.setAttribute("fill", "#f7fbfe");
-
-svg.appendChild(outer);
-
-for (let i = 0; i < COUNT; i++) {
+for(let i = 0; i < COUNT; i++){
 
     const start =
         i * step;
@@ -204,10 +121,10 @@ for (let i = 0; i < COUNT; i++) {
         (i + 1) * step;
 
     const p1 =
-        polar(radius, end);
+        polar(radius,end);
 
     const p2 =
-        polar(radius, start);
+        polar(radius,start);
 
     const path =
         document.createElementNS(
@@ -229,7 +146,9 @@ for (let i = 0; i < COUNT; i++) {
 
     path.setAttribute(
         "fill",
-        `url(#grad${i})`
+        i % 2
+            ? "#e9cfcf"
+            : "#f1dddd"
     );
 
     svg.appendChild(path);
@@ -239,7 +158,7 @@ for (let i = 0; i < COUNT; i++) {
 
     const pos =
         polar(
-            radius * 0.70,
+            radius * 0.72,
             angle
         );
 
@@ -274,7 +193,7 @@ for (let i = 0; i < COUNT; i++) {
 
     text.setAttribute(
         "fill",
-        "#74899b"
+        "#856d6d"
     );
 
     text.setAttribute(
@@ -304,43 +223,14 @@ for (let i = 0; i < COUNT; i++) {
 
     svg.appendChild(text);
 }
-
-const center =
-    document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "circle"
-    );
-
-center.setAttribute(
-    "cx",
-    "0"
-);
-
-center.setAttribute(
-    "cy",
-    "0"
-);
-
-center.setAttribute(
-    "r",
-    "55"
-);
-
-center.setAttribute(
-    "fill",
-    "#ffffff"
-);
-
-svg.appendChild(center);
 ```
 
 }
 
-function spin() {
+function spin(){
 
 ```
-if (spinning)
-    return;
+if(spinning) return;
 
 spinning = true;
 
@@ -392,12 +282,12 @@ toggleEditor.addEventListener(
 ```
     editMode = !editMode;
 
-    if (editMode) {
+    if(editMode){
 
         toggleEditor.textContent =
             "✓ Done";
 
-    } else {
+    }else{
 
         saveCurrentLabel();
 
@@ -421,11 +311,9 @@ labelEditor.addEventListener(
 e => {
 
 ```
-    if (e.key === "Enter") {
+    if(e.key === "Enter"){
 
         saveCurrentLabel();
-
-        labelEditor.blur();
     }
 }
 ```
