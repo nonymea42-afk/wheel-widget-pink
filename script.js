@@ -147,26 +147,64 @@ function createDefs(){
     svg.appendChild(defs);
 }
 
-function editLabel(i){
+function openEditor(i){
 
-    const value =
-        prompt(
-            "Label:",
-            labels[i]
-        );
+    if(!editMode)
+        return;
 
-    if(
-        value !== null &&
-        value.trim()
-    ){
-        labels[i] =
-            value.trim();
+    currentSlice = i;
 
-        saveLabels();
+    labelInput.value =
+        labels[i];
 
-        render();
-    }
+    overlay.classList.add(
+        "show"
+    );
+
+    labelInput.focus();
+
+    labelInput.select();
 }
+
+function closeEditor(){
+
+    overlay.classList.remove(
+        "show"
+    );
+
+    currentSlice = null;
+}
+
+saveLabel.addEventListener(
+    "click",
+    () => {
+
+        if(
+            currentSlice === null
+        ) return;
+
+        const value =
+            labelInput.value.trim();
+
+        if(value){
+
+            labels[
+                currentSlice
+            ] = value;
+
+            saveLabels();
+
+            render();
+        }
+
+        closeEditor();
+    }
+);
+
+cancelLabel.addEventListener(
+    "click",
+    closeEditor
+);
 
 function render(){
 
@@ -297,9 +335,9 @@ function render(){
         );
 
         text.addEventListener(
-            "click",
-            () => editLabel(i)
-        );
+    "click",
+    () => openEditor(i)
+);
 
         svg.appendChild(text);
     }
@@ -390,3 +428,20 @@ spinBtn.addEventListener(
 );
 
 render();
+
+editBtn.addEventListener(
+    "click",
+    () => {
+
+        editMode = !editMode;
+
+        document.body.classList.toggle(
+            "editing"
+        );
+
+        editBtn.textContent =
+            editMode
+            ? "Done Editing"
+            : "Edit Labels";
+    }
+);
