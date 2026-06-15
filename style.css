@@ -282,9 +282,9 @@ body{
 
 .popup-open .wheel-wrapper{
 
-    filter:blur(5px);
+    filter:blur(6px);
 
-    opacity:.35;
+    opacity:.75;
 
     transition:.25s;
 }
