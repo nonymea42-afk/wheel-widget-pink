@@ -203,13 +203,6 @@ body{
     display:flex;
 }
 
-.editing .wheel-wrapper{
-
-    filter:
-        blur(3px);
-
-    opacity:.55;
-}
 
 #editorBox{
 
@@ -285,4 +278,13 @@ body{
     background:#f4dede;
 
     color:#876767;
+}
+
+.popup-open .wheel-wrapper{
+
+    filter:blur(5px);
+
+    opacity:.35;
+
+    transition:.25s;
 }
