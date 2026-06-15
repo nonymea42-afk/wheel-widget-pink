@@ -158,3 +158,131 @@ body{
 
     min-height:2rem;
 }
+
+#editBtn{
+
+    margin-top:20px;
+
+    padding:
+        10px 22px;
+
+    border:none;
+
+    border-radius:30px;
+
+    background:#f4dede;
+
+    color:#876767;
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    font-size:20px;
+
+    cursor:pointer;
+}
+
+#overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    z-index:100;
+}
+
+#overlay.show{
+
+    display:flex;
+}
+
+.editing .wheel-wrapper{
+
+    filter:
+        blur(3px);
+
+    opacity:.55;
+}
+
+#editorBox{
+
+    width:300px;
+
+    background:white;
+
+    padding:28px;
+
+    border-radius:24px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(
+            0,
+            0,
+            0,
+            .18
+        );
+}
+
+#editorBox h3{
+
+    text-align:center;
+
+    margin-bottom:16px;
+
+    color:#876767;
+}
+
+#labelInput{
+
+    width:100%;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#f8ecec;
+
+    font-size:20px;
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    outline:none;
+}
+
+.editor-buttons{
+
+    display:flex;
+
+    gap:10px;
+
+    margin-top:16px;
+}
+
+.editor-buttons button{
+
+    flex:1;
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:10px;
+
+    cursor:pointer;
+
+    background:#f4dede;
+
+    color:#876767;
+}
